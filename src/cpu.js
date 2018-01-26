@@ -138,16 +138,20 @@ class CPU {
      * 
      * op can be: ADD SUB MUL DIV INC DEC CMP
      */
-    alu(op, regA, regB) {
-        let valA = this.reg[regA];
-        let valB = this.reg[regB];
-
+    alu(op, regA, regB, immediate) {
+        let valA, valB;
+        //load valA from regA
+        valA = this.reg[regA];
+        //load valB from regB or immediate
+        if (regB !== null && regB !== undefined) {
+            valB = this.reg[regB];
+        } else {
+            valB = immediate;
+        }
         switch (op) {
             case 'MUL':
                 let product = valA * valB;
-
                 this.flags.overflow = product > 255;
-
                 this.reg[regA] = product & 255;
                 break;
 
@@ -156,7 +160,7 @@ class CPU {
                 break;
 
             case 'CMP':
-                this.flags.equal = (valA === valB);
+                this.flags.equal = valA === valB;
                 break;
 
         }
@@ -241,12 +245,13 @@ class CPU {
      */
     LDI() {
         const regA = this.ram.read(this.reg.PC + 1);
-        const val = this.ram.read(this.reg.PC + 2); // immediate value
+        const regB = this.ram.read(this.reg.PC + 2);
+
+        let val = this.ram.read(this.reg[regB]);
 
         this.reg[regA] = val;
 
-        // Move the PC
-        this.reg.PC += 3;
+        this.alu('ADD', 'PC', null, 3);
     }
 
     /**
@@ -258,8 +263,7 @@ class CPU {
 
         this.alu('MUL', regA, regB);
 
-        // Move the PC
-        this.reg.PC += 3;
+        this.alu('ADD', 'PC', null, 3);
     }
 
     /**
@@ -340,8 +344,7 @@ class CPU {
 
         this.alu('ADD', regA, regB);
 
-        // Move the PC
-        this.reg.PC += 3;
+        this.alu('ADD', 'PC', null, 3);
     }
 
     /**
@@ -417,16 +420,32 @@ class CPU {
      * JEQ R
      */
     JEQ() {
+        //const regA = this.ram.read(this.reg.PC + 1);
         // If equal flag is true jump to the address stored in regA
-        if (this.flags.equal) JMP();
+        //if (this.flags.equal) this.reg.PC = this.reg[regA];
+        if (this.flags.equal) {
+            const reg = this.ram.read(this.reg.PC + 1);
+            this.reg.PC = this.reg[reg];
+        } else {
+            this.alu('ADD', 'PC', null, 2);
+        }
     }
+
 
     /**
      * JNE R
      */
     JNE() {
+        //const regA = this.ram.read(this.reg.PC + 1);
         // If equal flag is false jump to the address stored in regA
-        if (!this.flags.equal) JMP();
+        //if (!this.flags.equal) this.reg.PC = this.reg[regA];
+        if (!this.flags.equal) {
+            const reg = this.ram.read(this.reg.PC + 1);
+            this.reg.PC = this.reg[reg];
+        } else {
+            this.alu('ADD', 'PC', null, 2);
+        }
+
     }
 }
 
