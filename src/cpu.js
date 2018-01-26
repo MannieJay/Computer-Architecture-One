@@ -53,10 +53,9 @@ class CPU {
 
         this.flags = {
             interruptsEnabled: true,
-            equal: false,
+            equal: null,
         };
 
-        this.fanSpeed = 2;
 
         this.setupBranchTable();
     }
@@ -405,7 +404,10 @@ class CPU {
         const regA = this.ram.read(this.reg.PC + 1);
         const regB = this.ram.read(this.reg.PC + 2);
 
-        this.alu('CMP', regA, regB);
+        //this.alu('CMP', regA, regB);
+        if ((this.reg[regA] & ~this.reg[regB]) === 0) {
+            this.flags.equal = true;
+        } else this.flags.equal = false;
 
         // Move the PC
         this.reg.PC += 3;
@@ -422,7 +424,7 @@ class CPU {
     /**
      * JNE R
      */
-    JEQ() {
+    JNE() {
         // If equal flag is false jump to the address stored in regA
         if (!this.flags.equal) JMP();
     }
