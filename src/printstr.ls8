@@ -1,0 +1,94 @@
+# Prints Hello, world!
+#
+# Declares a subroutine that prints a string at a given address
+#
+# Run with:
+#
+# node ls8 printstr.ls8
+#
+
+# MAIN
+
+### address: 0
+
+00000100 # LDI R0,38  # address of bytes to print
+00000000
+00100110
+00000100 # LDI R1,14  # number of bytes to print
+00000001
+00001110
+00000100 # LDI R2,12  # address of PrintStr
+00000010
+00001100
+00001111 # CALL R2    # call PrintStr
+00000010
+00011011 # HLT
+
+# Subroutine: PrintStr
+# R0 the address of the string
+# R1 the number of bytes to print
+
+### address: 12
+
+00000100 # LDI R2,0 # SAVE 0 into R2 for later CMP
+00000010
+00000000
+
+### address: 15
+
+# Check to see if we're done
+
+00010110 # CMP R1,R2  # Compare R1 to 0 (in R2)
+00000001
+00000010
+00000100 # LDI R3,37
+00000011
+00100101
+00010011 # JEQ R3     # Jump to end if we're done
+00000011
+
+### address: 23
+
+00010010 # LD R3,R0   # Load R3 from address in R0
+00000011
+00000000
+00000111 # PRA R3     # Print character
+00000011
+
+### address: 28
+
+00010111 # INC R0     # Increment to next character
+00000000
+00011000 # DEC R1     # Decrement number of characters
+00000001
+
+### address: 32
+
+00000100 # LDI R3,15
+00000011
+00001111
+00010001 # JMP R3
+00000011
+
+### address: 37
+
+00010000 # RET
+
+# Start of printable data
+
+#### address 38
+
+01001000 # H
+01100101 # e
+01101100 # l
+01101100 # l
+01101111 # o
+00101100 # ,
+00100000 #  
+01110111 # w
+01101111 # o
+01110010 # r
+01101100 # l
+01100100 # d
+00100001 # !
+00001010 # newline
